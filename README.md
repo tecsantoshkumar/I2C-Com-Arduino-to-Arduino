@@ -299,3 +299,122 @@ void loop() {
   Serial.println(response);
 }
 ```
+
+As with all I2C sketches, we start by including the Wire library.
+
+Next we define a few constants to represent the I2C address of the slave and the number of bytes of data that we expect to retrieve from it.
+
+In the Setup we initialize the I2C communications as a master. We know it is a master as there is no address parameter in the begin function.  We also setup a serial monitor and print a line of text to it.
+
+Now to the Loop.
+
+We start with a tiny time delay, mostly to slow things down enough so that we can read the display on the serial monitor.
+
+Next we use the beginTransmission function to send data to the slave. In this case the data we send is just a number zero.  We finish sending with a call to the endTransmission function.
+
+Next we request some data back from the slave using the requestFrom function.
+
+After that we formulate a response string by reading the data, a byte at a time, from the slave.
+
+We print the details of what we are doing and of the data we receive to the serial monitor.  And then we finish the Loop and do it all over again.
+
+## Slave Demo Sketch
+Now onto the sketch used by the slave.
+
+```
+/*
+  I2C Slave Demo
+  i2c-slave-demo.ino
+  Demonstrate use of I2C bus
+  Slave receives character from Master and responds
+  DroneBot Workshop 2019
+  https://dronebotworkshop.com
+*/
+
+// Include Arduino Wire library for I2C
+#include <Wire.h>
+
+// Define Slave I2C Address
+#define SLAVE_ADDR 9
+
+// Define Slave answer size
+#define ANSWERSIZE 5
+
+// Define string with response to Master
+String answer = "Hello";
+
+void setup() {
+
+  // Initialize I2C communications as Slave
+  Wire.begin(SLAVE_ADDR);
+  
+  // Function to run when data requested from master
+  Wire.onRequest(requestEvent); 
+  
+  // Function to run when data received from master
+  Wire.onReceive(receiveEvent);
+  
+  // Setup Serial Monitor 
+  Serial.begin(9600);
+  Serial.println("I2C Slave Demonstration");
+}
+
+void receiveEvent() {
+
+  // Read while data received
+  while (0 < Wire.available()) {
+    byte x = Wire.read();
+  }
+  
+  // Print to Serial Monitor
+  Serial.println("Receive event");
+}
+
+void requestEvent() {
+
+  // Setup byte variable in the correct size
+  byte response[ANSWERSIZE];
+  
+  // Format answer as array
+  for (byte i=0;i<ANSWERSIZE;i++) {
+    response[i] = (byte)answer.charAt(i);
+  }
+  
+  // Send response back to Master
+  Wire.write(response,sizeof(response));
+  
+  // Print to Serial Monitor
+  Serial.println("Request event");
+}
+
+void loop() {
+
+  // Time delay in loop
+  delay(50);
+}
+```
+
+Once again we start by including the Wire library.  As with the previous sketch we also define the I2C address for the slave, as well as the number of bytes we are planning to send back to the master.
+
+Next we define the string that we are going to send back to the master, in this case just the word “Hello”. If you decide to change this make sure that you adjust the ANSWERSIZE constant in both sketches to be correct.
+
+In the Setup we initialize the connection to the I2C bus with a begin function. Take note of the different way we do this, as this is a slave we specify the I2C address we are going to be using. By doing this the Wire library knows we want to operate in slave mode.
+
+Now we need to define the names of the functions that we will call when two events occur – a data request received from the master and data received from the master.  We also setup and print to the serial monitor.
+
+The function receiveEvent is called when we receive data from the master.  In this function we read data while the data is available and assign it to a byte (remember, the data will be received one byte at a time).
+
+The requestEvent function is called whenever we get a request for data from the master.  We need to send our string “Hello” back to the master. As we need to send the data one byte at a time we divide the characters in “Hello” into individual items in an array and then send them one-by-one.
+
+We report all of our progress in both functions to the serial monitor.
+
+The Loop in this sketch just adds a time delay, which matches the one used in the master sketch.
+
+## Running the Demo Sketches
+To run these sketches you’ll need to be able to view the Serial monitor on each Arduino. If you have two computers with the Arduino IDE installed then that will make it a lot easier.
+
+![master-slave](https://user-images.githubusercontent.com/62633516/190432706-8e8d2b9a-6cfb-4fe1-b13c-ff8f033b4458.png)
+
+On Microsoft Windows it is possible to open up two instances of the Arduino IDE. If that is done you could display both serial monitors side-by-side on the same screen.
+
+Alternately, you could use one computer and power up the second Arduino with its own power supply. You would have to switch the computer and power between the two Arduino’s. By doing this you could monitor both screens one-by-one.
