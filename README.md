@@ -250,8 +250,6 @@ Here is the sketch that will be used on the Arduino that you have designated as 
   i2c-master-demo.ino
   Demonstrate use of I2C bus
   Master sends character and gets reply from Slave
-  DroneBot Workshop 2019
-  https://dronebotworkshop.com
 */
 
 // Include Arduino Wire library for I2C
@@ -327,8 +325,6 @@ Now onto the sketch used by the slave.
   i2c-slave-demo.ino
   Demonstrate use of I2C bus
   Slave receives character from Master and responds
-  DroneBot Workshop 2019
-  https://dronebotworkshop.com
 */
 
 // Include Arduino Wire library for I2C
